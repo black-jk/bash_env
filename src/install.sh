@@ -47,25 +47,27 @@
     
     function copy_file {
       filename="${1}"
-      variables="${2},"
+      variables="${2}"
       source_file_path="${SCRIPT_HOME_DIR}/${filename}"
       dest_file_path="${HOME_DIR}/${filename}"
       msg="[Install] ${dest_file_path} "
       
       
-      
       if [ "${variables}" ]; then
+        echo "  [Variable]"
+        variables="${variables},"
         tmp_source_file_path="${SCRIPT_TEMP_DIR}/${filename}"
         tmp_source_file_dir="${tmp_source_file_path%/*}"
         
         mkdir -p "${tmp_source_file_dir}"
         cp "${source_file_path}" "${tmp_source_file_path}"
         
-        while [ "${variables}" ]; do
+        while [ "${variables%,}" ]; do
           variable_name="${variables%%,*}"
           variable_value="${!variable_name}"
           variables="${variables#*,}"
           
+          echo "    ${variable_name}: ${variable_value}"
           sed -r -i "s/\\$\\{${variable_name}\\}/${variable_value//\//\\/}/g" "${tmp_source_file_path}"
         done
       else
