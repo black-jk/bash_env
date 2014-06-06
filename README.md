@@ -12,3 +12,5 @@
 ====================================================================================================
   
   http://linux.vbird.org/linux_basic/0340bashshell-scripts.php
+  http://rritw.com/a/bianchengyuyan/C__/20140202/466943.html    ***
+  http://rritw.com/a/bianchengyuyan/C__/20130222/310622.html

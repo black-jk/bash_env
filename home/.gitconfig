@@ -1,0 +1,88 @@
+[core]
+  excludesfile = ~/.gitignore
+  safecrlf = true
+  
+[user]
+  name  = ${GIT_USERNAME}
+  email = ${GIT_EMAIL}
+  
+[pretty]
+  log1 = format:%C(yellow)%h%Creset %s - %C(cyan)%an%Creset %Cblue(%cr)%Creset
+  log2 = format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset
+  
+[alias]
+  co               = checkout
+  ci               = commit
+  cia              = commit -a
+  cic              = commit -C
+  cim              = commit -m
+  cix              = commit -m 'x'
+  cif              = commit -m '[fixup]'
+  ciam             = commit -a -m
+  st               = status
+  br               = branch
+  bra              = branch -a
+  brr              = branch -r
+  sb               = show-branch
+  sba              = show-branch -a
+  sbc              = show-branch --current
+  sb1              = show-branch heads/*
+  
+  lo               = log --oneline
+  l1               = log -1
+  loga             = log --all
+  logg             = log --graph --oneline
+  log0             = log --all --oneline --graph
+  lo1              = log --pretty='format:%C(yellow)%h%Creset %s - %C(cyan)%an%Creset %Cblue(%cr)%Creset'
+  lo1g             = log --pretty='format:%C(yellow)%h%Creset %s - %C(cyan)%an%Creset %Cblue(%cr)%Creset' --graph
+  lo2              = log --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset'
+  lo2g             = log --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset' --graph
+  l2               = log --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset' --graph
+  l10              = log -10 --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset' --graph
+  l20              = log -20 --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset' --graph
+  l30              = log -30 --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset' --graph
+  l40              = log -40 --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset' --graph
+  l50              = log -50 --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset' --graph
+  diffc            = diff --cached
+  difff            = diff --name-only
+  showfile         = show --name-only
+  
+  ci-init          = commit --allow-empty -m 'Initialize GIT.'
+  ci-am            = commit --am -C HEAD
+  
+  cp               = cherry-pick
+  rb               = rebase
+  rbi              = rebase -i
+  rbir             = rebase -i root
+  rbim             = rebase -i master
+  rbid             = rebase -i develop
+  rbi5             = rebase -i HEAD~5
+  rbi10            = rebase -i HEAD~10
+  rbi20            = rebase -i HEAD~20
+  rbi30            = rebase -i HEAD~30
+  rbi40            = rebase -i HEAD~40
+  rbon             = rebase --onto
+  rbc              = rebase --continue
+  rba              = rebase --abort
+  rbs              = rebase --skip
+  rbm              = rebase master
+  
+  ignore           = update-index --assume-unchanged
+  noignore         = update-index --no-assume-unchanged
+  
+  
+  ### for remotes
+  backup           = push backup --all --prune
+  
+  
+  ### for .git/scripts/git.sh
+  op               = !.git/scripts/git.sh
+  sync             = !.git/scripts/git.sh sync
+  synck            = !.git/scripts/git.sh sync -k
+  synckn           = !.git/scripts/git.sh sync -k -noedit
+  
+[color]
+  ui = true
+  
+[log]
+  date = local
