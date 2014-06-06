@@ -16,7 +16,7 @@
     
     copy_file ".gitignore"
     copy_file ".gitconfig" "GIT_USERNAME,GIT_EMAIL"
-    copy_file ".git-completion.bash"
+    [ "${GIT_COMPLETETION}" ] && copy_file ".git-completion.bash"
     
     
     

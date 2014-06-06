@@ -17,13 +17,23 @@
   ENV_BLACKJK="blackjk"
   ENV_DEFAULT="default"
   
+  OS_LINUX="linux"
+  OS_WIN="win"
+  
   if   [ "$(echo "${HOSTNAME}" | sed -r 's/^((ap[0-9]|dev)(\.(hemidemi|tintint)\.com)?)$/true/g')" == "true" ]; then
     ENV_NAME="${ENV_HEMIDEMI}"
-  elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-PC|BlackJK-NB(2)?|BlackJK-HD-NB1)$/true/g')" == "true" ]; then
+    ENV_OS="${OS_LINUX}"
+  elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-HD-NB1)$/true/g')" == "true" ]; then
+    ENV_NAME="${ENV_HEMIDEMI}"
+    ENV_OS="${OS_WIN}"
+  elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-PC|BlackJK-NB(2)?)$/true/g')" == "true" ]; then
     ENV_NAME="${ENV_BLACKJK}"
+    ENV_OS="${OS_WIN}"
   else
     ENV_NAME="${ENV_DEFAULT}"
+    ENV_OS="${OS_WIN}"
   fi
+#ENV_NAME="${ENV_BLACKJK}"
   
   
   
@@ -39,6 +49,12 @@
     GIT_EMAIL="blackjk0@gmail.com"
   fi
   
+  if [ "${ENV_OS}" == "${OS_LINUX}" ]; then
+    GIT_COMPLETETION="1"
+  else
+    GIT_COMPLETETION=""
+  fi
+  
   
   
   ### ====================================================================================================
@@ -50,8 +66,7 @@
       variables="${2}"
       source_file_path="${SCRIPT_HOME_DIR}/${filename}"
       dest_file_path="${HOME_DIR}/${filename}"
-      msg="[Install] ${dest_file_path} "
-      
+      echo "[Install] ${dest_file_path}"
       
       if [ "${variables}" ]; then
         echo "  [Variable]"
@@ -77,13 +92,14 @@
       
       if [ -e "${dest_file_path}" ]; then
         if [ "$(diff "${tmp_source_file_path}" "${dest_file_path}")" ]; then
+          echo -n "  "
           backup_file "${dest_file_path}"
         else
-          echo "${msg}[SKIP]" && return
+          echo "  [SKIP]" && return
         fi
       fi
       
-      cp "${tmp_source_file_path}" "${dest_file_path}" && echo "${msg}[OK]" || echo "${msg}[FAIL]"
+      cp "${tmp_source_file_path}" "${dest_file_path}" && echo "  [OK]" || echo "  [FAIL]"
     }
     
     ### ----------------------------------------------------------------------------------------------------
@@ -91,7 +107,7 @@
     function backup_file {
       file_path="${1}"
       backup_file_path="$(get_backup_path "${dest_file_path}")"
-      cp "${file_path}" "${backup_file_path}" && echo "[Backup] [${file_path}] [${backup_file_path}]"
+      cp "${file_path}" "${backup_file_path}" && echo "[Backup] ${backup_file_path}"
     }
     
     ### --------------------------------------------------
