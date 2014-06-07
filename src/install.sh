@@ -155,7 +155,7 @@
     
     function _backup_file {
       file_path="${1}"
-      backup_file_path="$(_get_backup_path "${dest_file_path}")"
+      backup_file_path="$(_get_backup_path "${file_path}")"
       cp "${file_path}" "${backup_file_path}" && echo "  [Backup] ${backup_file_path}"
     }
     
