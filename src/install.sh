@@ -72,13 +72,7 @@
       ### ------------------------------
       
       if [ "${variables}" ]; then
-        variables="${variables},"
-        tmp_source_file_path="${SCRIPT_TEMP_DIR}/${filename}"
-        tmp_source_file_dir="${tmp_source_file_path%/*}"
-        
-        mkdir -p "${tmp_source_file_dir}"
-        cp "${source_file_path}" "${tmp_source_file_path}"
-        
+        tmp_source_file_path="$(_make_temp_file "${filename}" "${source_file_path}")"
         _handle_variables "${tmp_source_file_path}" "${variables}"
       else
         tmp_source_file_path="${source_file_path}"
@@ -100,29 +94,44 @@
     
     ### ----------------------------------------------------------------------------------------------------
     
-    function compose_file {
-      filename="${1}"
-      source_file_path="${SCRIPT_HOME_DIR}/${filename}"
-      dest_file_path="${HOME_DIR}/${filename}"
-      echo "  [Install] ${dest_file_path}"
+    function _compose_file {
+      dest_file_path="${1}"
+      files=${@:2}
       
-      ### ------------------------------
-      
-      files="${2}" # ...
-      
-      
-      ### ------------------------------
-      
-      if [ -e "${dest_file_path}" ]; then
-        if [ "$(diff "${tmp_source_file_path}" "${dest_file_path}")" ]; then
-          echo -n "  "
-          _backup_file "${dest_file_path}"
+      echo "    [Compose]"
+      echo -n > "${dest_file_path}"
+      for file_path in ${files[@]}
+      do
+        if [ -e "${file_path}" ]; then
+          echo "    [ERROR] [_compose_file] Missing source file: '${file_path}'"
         else
-          echo "    [SKIP]" && return
+          cat "${file_path}" >> "${dest_file_path}"
         fi
+      done
+    }
+    
+    ### ----------------------------------------------------------------------------------------------------
+    
+    function _make_temp_file {
+      file_path="${1}"
+      source_file_path="${2}"
+      
+      tmp_file_path="${SCRIPT_TEMP_DIR}/${file_path}"
+      tmp_file_dir="${tmp_file_path%/*}"
+      mkdir -p "${tmp_file_dir}"
+      
+      if [ "${source_file_path}" ]; then
+        if [ -e "${source_file_path}" ]; then
+          cp "${source_file_path}" "${tmp_file_path}"
+        else
+          echo "    [ERROR] [_make_temp_file] Missing source file: '${source_file_path}'"
+          echo -n > "${tmp_file_path}"
+        fi
+      else
+        echo -n > "${tmp_file_path}"
       fi
       
-      cp "${tmp_source_file_path}" "${dest_file_path}" && echo "    [OK]" || echo "    [FAIL]"
+      echo "${tmp_file_path}"
     }
     
     ### ----------------------------------------------------------------------------------------------------
