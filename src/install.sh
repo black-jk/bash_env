@@ -174,7 +174,8 @@
         variable_value="${!variable_name}"
         variables="${variables#*,}"
         
-        echo -e "      ${COLOR_HIGHTLIGHT1}${variable_name}: ${variable_value}${COLOR_CLEAR}"
+        vn="${variable_name}                              "
+        echo -e "      ${COLOR_HIGHTLIGHT1}${vn:0:16}: ${variable_value}${COLOR_CLEAR}"
         sed -r -i "s/\\$\\{${variable_name}\\}/${variable_value//\//\\/}/g" "${file_path}"
       done
     }
