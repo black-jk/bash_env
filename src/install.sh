@@ -66,10 +66,12 @@
       variables="${2}"
       source_file_path="${SCRIPT_HOME_DIR}/${filename}"
       dest_file_path="${HOME_DIR}/${filename}"
-      echo "[Install] ${dest_file_path}"
+      echo "  "
+      echo "  [Install] ${dest_file_path}"
+      
+      ### ------------------------------
       
       if [ "${variables}" ]; then
-        echo "  [Variable]"
         variables="${variables},"
         tmp_source_file_path="${SCRIPT_TEMP_DIR}/${filename}"
         tmp_source_file_dir="${tmp_source_file_path%/*}"
@@ -77,42 +79,80 @@
         mkdir -p "${tmp_source_file_dir}"
         cp "${source_file_path}" "${tmp_source_file_path}"
         
-        while [ "${variables%,}" ]; do
-          variable_name="${variables%%,*}"
-          variable_value="${!variable_name}"
-          variables="${variables#*,}"
-          
-          echo "    ${variable_name}: ${variable_value}"
-          sed -r -i "s/\\$\\{${variable_name}\\}/${variable_value//\//\\/}/g" "${tmp_source_file_path}"
-        done
+        _handle_variables "${tmp_source_file_path}" "${variables}"
       else
         tmp_source_file_path="${source_file_path}"
       fi
       
+      ### ------------------------------
       
       if [ -e "${dest_file_path}" ]; then
         if [ "$(diff "${tmp_source_file_path}" "${dest_file_path}")" ]; then
           echo -n "  "
-          backup_file "${dest_file_path}"
+          _backup_file "${dest_file_path}"
         else
-          echo "  [SKIP]" && return
+          echo "    [SKIP]" && return
         fi
       fi
       
-      cp "${tmp_source_file_path}" "${dest_file_path}" && echo "  [OK]" || echo "  [FAIL]"
+      cp "${tmp_source_file_path}" "${dest_file_path}" && echo "    [OK]" || echo "    [FAIL]"
     }
     
     ### ----------------------------------------------------------------------------------------------------
     
-    function backup_file {
+    function compose_file {
+      filename="${1}"
+      source_file_path="${SCRIPT_HOME_DIR}/${filename}"
+      dest_file_path="${HOME_DIR}/${filename}"
+      echo "  [Install] ${dest_file_path}"
+      
+      ### ------------------------------
+      
+      files="${2}" # ...
+      
+      
+      ### ------------------------------
+      
+      if [ -e "${dest_file_path}" ]; then
+        if [ "$(diff "${tmp_source_file_path}" "${dest_file_path}")" ]; then
+          echo -n "  "
+          _backup_file "${dest_file_path}"
+        else
+          echo "    [SKIP]" && return
+        fi
+      fi
+      
+      cp "${tmp_source_file_path}" "${dest_file_path}" && echo "    [OK]" || echo "    [FAIL]"
+    }
+    
+    ### ----------------------------------------------------------------------------------------------------
+    
+    function _handle_variables {
       file_path="${1}"
-      backup_file_path="$(get_backup_path "${dest_file_path}")"
-      cp "${file_path}" "${backup_file_path}" && echo "[Backup] ${backup_file_path}"
+      variables="${2},"
+      
+      echo "    [Variable]"
+      while [ "${variables%,}" ]; do
+        variable_name="${variables%%,*}"
+        variable_value="${!variable_name}"
+        variables="${variables#*,}"
+        
+        echo "      ${variable_name}: ${variable_value}"
+        sed -r -i "s/\\$\\{${variable_name}\\}/${variable_value//\//\\/}/g" "${file_path}"
+      done
+    }
+    
+    ### ----------------------------------------------------------------------------------------------------
+    
+    function _backup_file {
+      file_path="${1}"
+      backup_file_path="$(_get_backup_path "${dest_file_path}")"
+      cp "${file_path}" "${backup_file_path}" && echo "  [Backup] ${backup_file_path}"
     }
     
     ### --------------------------------------------------
     
-    function get_backup_path {
+    function _get_backup_path {
       file_path="${1}"
       backup_file_path="${file_path}.bak"
       
