@@ -25,7 +25,8 @@
     copy_file ".gitconfig" "GIT_USERNAME,GIT_EMAIL"
     [ "${GIT_COMPLETETION}" ] && copy_file ".git-completion.bash"
     
-    #_compose_file "\$dest_path" a b c d
+    
+    _compose_file "/home/blackjk/profile_test" "/home/blackjk/a" "/home/blackjk/a" "/home/blackjk/a" 
     
     
     

@@ -64,6 +64,7 @@
     function copy_file {
       filename="${1}"
       variables="${2}"
+      compose_files="${@:3}"
       source_file_path="${SCRIPT_HOME_DIR}/${filename}"
       dest_file_path="${HOME_DIR}/${filename}"
       echo "  "
@@ -71,11 +72,17 @@
       
       ### ------------------------------
       
-      if [ "${variables}" ]; then
-        tmp_source_file_path="$(_make_temp_file "${filename}" "${source_file_path}")"
-        _handle_variables "${tmp_source_file_path}" "${variables}"
+     if [ "${#compose_files[@]}" -gt "0" ]; then
+        tmp_source_file_path="$(_make_temp_file "${filename}")"
+        _compose_file "${tmp_source_file_path}" ${compose_filese[@]}
       else
-        tmp_source_file_path="${source_file_path}"
+        tmp_source_file_path="$(_make_temp_file "${filename}" "${source_file_path}")"
+      fi
+      
+      ### ------------------------------
+      
+      if [ "${variables}" ]; then
+        _handle_variables "${tmp_source_file_path}" "${variables}"
       fi
       
       ### ------------------------------
@@ -102,8 +109,8 @@
       echo -n > "${dest_file_path}"
       for file_path in ${files[@]}
       do
-        if [ -e "${file_path}" ]; then
-          echo "    [ERROR] [_compose_file] Missing source file: '${file_path}'"
+        if [ ! -e "${file_path}" ]; then
+          echo "      [ERROR] [_compose_file] Missing source file: '${file_path}'"
         else
           cat "${file_path}" >> "${dest_file_path}"
         fi
