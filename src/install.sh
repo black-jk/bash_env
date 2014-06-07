@@ -3,60 +3,70 @@
   ### ====================================================================================================
   ### [Definition]
   ### ====================================================================================================
-  
-  HOME_DIR="$(cd && pwd)"
-  
-  SCRIPT_FILE="${0##*/}"
-  SCRIPT_ROOT_DIR="$(cd ${BASH_SOURCE%/*/${SCRIPT_FILE}} && pwd)"
-  SCRIPT_HOME_DIR="${SCRIPT_ROOT_DIR}/home"
-  SCRIPT_TEMP_DIR="${SCRIPT_ROOT_DIR}/tmp"
-  
-  ### ----------------------------------------------------------------------------------------------------
-  
-  ENV_HEMIDEMI="hemidemi"
-  ENV_BLACKJK="blackjk"
-  ENV_DEFAULT="default"
-  
-  OS_LINUX="linux"
-  OS_WIN="win"
-  
-  if   [ "$(echo "${HOSTNAME}" | sed -r 's/^((ap[0-9]|dev)(\.(hemidemi|tintint)\.com)?)$/true/g')" == "true" ]; then
-    ENV_NAME="${ENV_HEMIDEMI}"
-    ENV_OS="${OS_LINUX}"
-  elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-HD-NB1)$/true/g')" == "true" ]; then
-    ENV_NAME="${ENV_HEMIDEMI}"
-    ENV_OS="${OS_WIN}"
-  elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-PC|BlackJK-NB(2)?)$/true/g')" == "true" ]; then
-    ENV_NAME="${ENV_BLACKJK}"
-    ENV_OS="${OS_WIN}"
-  else
-    ENV_NAME="${ENV_DEFAULT}"
-    ENV_OS="${OS_WIN}"
-  fi
-#ENV_NAME="${ENV_BLACKJK}"
-  
-  
-  
-  ### ----------------------------------------------------------------------------------------------------
-  ### [GIT]
-  ### ----------------------------------------------------------------------------------------------------
-  
-  if [ "${ENV_NAME}" == "${ENV_HEMIDEMI}" ]; then
-    GIT_USERNAME="blackjk"
-    GIT_EMAIL="blackjkchen@hemidemi.com"
-  else
-    GIT_USERNAME="blackjk"
-    GIT_EMAIL="blackjk0@gmail.com"
-  fi
-  
-  if [ "${ENV_OS}" == "${OS_LINUX}" ]; then
-    GIT_COMPLETETION="1"
-  else
-    GIT_COMPLETETION=""
-  fi
-  
-  
-  
+    
+    COLOR_CLEAR="\e[0m"
+    COLOR_ERROR="\e[0;31m"
+    COLOR_CANCEL="\e[1;30m"
+    COLOR_SUCCESS="\e[0;32m"
+    
+    COLOR_HIGHTLIGHT1="\e[1;1m"
+    COLOR_HIGHTLIGHT2="\e[1;33m"
+    
+    ### ----------------------------------------------------------------------------------------------------
+    
+    HOME_DIR="$(cd && pwd)"
+    
+    SCRIPT_FILE="${0##*/}"
+    SCRIPT_ROOT_DIR="$(cd ${BASH_SOURCE%/*/${SCRIPT_FILE}} && pwd)"
+    SCRIPT_HOME_DIR="${SCRIPT_ROOT_DIR}/home"
+    SCRIPT_TEMP_DIR="${SCRIPT_ROOT_DIR}/tmp"
+    
+    ### ----------------------------------------------------------------------------------------------------
+    
+    ENV_HEMIDEMI="hemidemi"
+    ENV_BLACKJK="blackjk"
+    ENV_DEFAULT="default"
+    
+    OS_LINUX="linux"
+    OS_WIN="win"
+    
+    if   [ "$(echo "${HOSTNAME}" | sed -r 's/^((ap[0-9]|dev)(\.(hemidemi|tintint)\.com)?)$/true/g')" == "true" ]; then
+      ENV_NAME="${ENV_HEMIDEMI}"
+      ENV_OS="${OS_LINUX}"
+    elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-HD-NB1)$/true/g')" == "true" ]; then
+      ENV_NAME="${ENV_HEMIDEMI}"
+      ENV_OS="${OS_WIN}"
+    elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-PC|BlackJK-NB(2)?)$/true/g')" == "true" ]; then
+      ENV_NAME="${ENV_BLACKJK}"
+      ENV_OS="${OS_WIN}"
+    else
+      ENV_NAME="${ENV_DEFAULT}"
+      ENV_OS="${OS_WIN}"
+    fi
+  #ENV_NAME="${ENV_BLACKJK}"
+    
+    
+    
+    ### ----------------------------------------------------------------------------------------------------
+    ### [GIT]
+    ### ----------------------------------------------------------------------------------------------------
+    
+    if [ "${ENV_NAME}" == "${ENV_HEMIDEMI}" ]; then
+      GIT_USERNAME="blackjk"
+      GIT_EMAIL="blackjkchen@hemidemi.com"
+    else
+      GIT_USERNAME="blackjk"
+      GIT_EMAIL="blackjk0@gmail.com"
+    fi
+    
+    if [ "${ENV_OS}" == "${OS_LINUX}" ]; then
+      GIT_COMPLETETION="1"
+    else
+      GIT_COMPLETETION=""
+    fi
+    
+    
+    
   ### ====================================================================================================
   ### [Functions]
   ### ====================================================================================================
@@ -64,17 +74,26 @@
     function copy_file {
       filename="${1}"
       variables="${2}"
-      compose_files="${@:3}"
+      if [ "${#@}" -ge "3" ]; then
+        compose_files="${@:2}"
+      else
+        compose_files=()
+      fi
+      
       source_file_path="${SCRIPT_HOME_DIR}/${filename}"
       dest_file_path="${HOME_DIR}/${filename}"
-      echo "  "
-      echo "  [Install] ${dest_file_path}"
+      echo -e "  "
+      echo -e "  [Install] ${COLOR_HIGHTLIGHT1}${dest_file_path}${COLOR_CLEAR}"
       
       ### ------------------------------
       
+#echo -e "${COLOR_HIGHTLIGHT2}"
+#echo -e "${#compose_files[@]}";
+#echo -e "${COLOR_CLEAR}"
+#exit;
      if [ "${#compose_files[@]}" -gt "0" ]; then
         tmp_source_file_path="$(_make_temp_file "${filename}")"
-        _compose_file "${tmp_source_file_path}" ${compose_filese[@]}
+        _compose_file "${tmp_source_file_path}" ${compose_files[@]}
       else
         tmp_source_file_path="$(_make_temp_file "${filename}" "${source_file_path}")"
       fi
@@ -92,27 +111,29 @@
           echo -n "  "
           _backup_file "${dest_file_path}"
         else
-          echo "    [SKIP]" && return
+          echo -e "    [${COLOR_SUCCESS}SKIP${COLOR_CLEAR}]" && return
         fi
       fi
       
-      cp "${tmp_source_file_path}" "${dest_file_path}" && echo "    [OK]" || echo "    [FAIL]"
+      cp "${tmp_source_file_path}" "${dest_file_path}" && echo -e "    [${COLOR_SUCCESS}OK${COLOR_CLEAR}]" || echo -e "    [${COLOR_ERROR}FAIL${COLOR_CLEAR}]"
     }
     
     ### ----------------------------------------------------------------------------------------------------
     
     function _compose_file {
-      dest_file_path="${1}"
+      composed_dest_file_path="${1}"
       files=${@:2}
       
-      echo "    [Compose]"
-      echo -n > "${dest_file_path}"
+      echo -e "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#files[@]}${COLOR_CLEAR}"
+      echo -n > "${composed_dest_file_path}"
       for file_path in ${files[@]}
       do
+        echo -ne "      '${COLOR_HIGHTLIGHT1}${file_path}${COLOR_CLEAR}'"
         if [ ! -e "${file_path}" ]; then
-          echo "      [ERROR] [_compose_file] Missing source file: '${file_path}'"
+          echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
         else
-          cat "${file_path}" >> "${dest_file_path}"
+          cat "${file_path}" >> "${composed_dest_file_path}"
+          echo
         fi
       done
     }
@@ -153,7 +174,7 @@
         variable_value="${!variable_name}"
         variables="${variables#*,}"
         
-        echo "      ${variable_name}: ${variable_value}"
+        echo -e "      ${COLOR_HIGHTLIGHT1}${variable_name}: ${variable_value}${COLOR_CLEAR}"
         sed -r -i "s/\\$\\{${variable_name}\\}/${variable_value//\//\\/}/g" "${file_path}"
       done
     }
