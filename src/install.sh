@@ -36,6 +36,9 @@
         echo -n > "${composed_dest_file_path}"
         for file_path in ${compose_source_files[@]}
         do
+          
+          file_path="${source_file_path}.partial/${file_path}"
+          
           echo -ne "      ${COLOR_HIGHTLIGHT1}$(_space "${file_path}" 64)${COLOR_CLEAR}"
           if [ ! -e "${file_path}" ]; then
             echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
