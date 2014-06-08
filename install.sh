@@ -29,8 +29,7 @@
     ### [Bash Shell]
     ### ----------------------------------------------------------------------------------------------------
     
-    
-    copy_file "profile_test" "" "/home/blackjk/.gitignore" "/home/blackjk/a" "/home/blackjk/.gitignorex"
+    copy_file ".bash_env" "" "/home/blackjk/.gitignore" "/home/blackjk/a" "/home/blackjk/.gitignorex"
     
     #_compose_file "/home/blackjk/profile_test" "/home/blackjk/a" "/home/blackjk/a" "/home/blackjk/a"
     

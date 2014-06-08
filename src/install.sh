@@ -7,10 +7,15 @@
     function copy_file {
       filename="${1}"
       variables="${2}"
+      
+      compose_source_files=()
       if [ "${#@}" -ge "3" ]; then
-        compose_files="${@:2}"
-      else
-        compose_files=()
+        for file in "${@:2}"
+        do
+          if [ "${file}" ]; then
+            compose_source_files=("${compose_source_files[@]}" "${file}")
+          fi
+        done
       fi
       
       source_file_path="${SCRIPT_HOME_DIR}/${filename}"
@@ -20,13 +25,25 @@
       
       ### ------------------------------
       
-#echo -e "${COLOR_HIGHTLIGHT2}"
-#echo -e "${#compose_files[@]}";
-#echo -e "${COLOR_CLEAR}"
-#exit;
-     if [ "${#compose_files[@]}" -gt "0" ]; then
+      if [ "${#compose_source_files[@]}" -gt "0" ]; then
         tmp_source_file_path="$(_make_temp_file "${filename}")"
-        _compose_file "${tmp_source_file_path}" ${compose_files[@]}
+        
+        #_compose_file "${tmp_source_file_path}" ${compose_source_files[@]}
+        
+        composed_dest_file_path="${tmp_source_file_path}"
+        
+        echo -e "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#compose_source_files[@]}${COLOR_CLEAR}"
+        echo -n > "${composed_dest_file_path}"
+        for file_path in ${compose_source_files[@]}
+        do
+          echo -ne "      ${COLOR_HIGHTLIGHT1}$(_space "${file_path}" 64)${COLOR_CLEAR}"
+          if [ ! -e "${file_path}" ]; then
+            echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
+          else
+            cat "${file_path}" >> "${composed_dest_file_path}"
+            echo
+          fi
+        done
       else
         tmp_source_file_path="$(_make_temp_file "${filename}" "${source_file_path}")"
       fi
@@ -56,13 +73,13 @@
     function _compose_file {
       composed_dest_file_path="${1}"
       files=${@:2}
+echo "files: '${files}'"
       
       echo -e "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#files[@]}${COLOR_CLEAR}"
       echo -n > "${composed_dest_file_path}"
       for file_path in ${files[@]}
       do
-        vn="${file_path}                              "
-        echo -ne "      ${COLOR_HIGHTLIGHT1}${vn:0:64}${COLOR_CLEAR}"
+        echo -ne "      ${COLOR_HIGHTLIGHT1}$(_space "${file_path}" 64)${COLOR_CLEAR}"
         if [ ! -e "${file_path}" ]; then
           echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
         else
@@ -108,8 +125,7 @@
         variable_value="${!variable_name}"
         variables="${variables#*,}"
         
-        vn="${variable_name}                              "
-        echo -e "      ${COLOR_HIGHTLIGHT1}${vn:0:16}: ${variable_value}${COLOR_CLEAR}"
+        echo -e "      ${COLOR_HIGHTLIGHT1}$(_space "${variable_name}" 16): ${variable_value}${COLOR_CLEAR}"
         sed -r -i "s/\\$\\{${variable_name}\\}/${variable_value//\//\\/}/g" "${file_path}"
       done
     }
@@ -138,6 +154,14 @@
     }
     
     
+    
+    ### ----------------------------------------------------------------------------------------------------
+    
+    function _space {
+      _msg="${1}                                                                                                                                "
+      _num="${2}"
+      echo "${_msg:0:${_num}}"
+    }
     
     ### ----------------------------------------------------------------------------------------------------
     
