@@ -175,6 +175,10 @@
     ENV_OS_WIN="win"
     ENV_OS_LINUX="linux"
     
+    ENV_SHELL_BASH="bash"
+    ENV_SHELL_CYGWIN="cygwin"
+    ENV_SHELL_GIT="git-bash"
+    
     ENV_USER_ROOT="root"
     ENV_USER_BLACKJK="blackjk"
     
@@ -191,9 +195,10 @@
     
     ### --------------------------------------------------
     
-    ### ENV_NAME
-    ### ENV_OS
-    ### ENV_USER
+    ### ENV_NAME  : ENV_NAME_HEMIDEMI | ENV_NAME_BLACKJK
+    ### ENV_OS    : ENV_OS_WIN | ENV_OS_LINUX
+    ### ENV_SHELL : ENV_SHELL_BASH | ENV_SHELL_CYGWIN | ENV_SHELL_GIT
+    ### ENV_USER  : ENV_USER_ROOT | ENV_USER_BLACKJK
     
     if   [ "$(echo "${HOSTNAME}" | sed -r 's/^((ap[0-9]|dev)(\.(hemidemi|tintint)\.com)?)$/true/g')" == "true" ]; then
       ENV_NAME="${ENV_NAME_HEMIDEMI}"
@@ -207,7 +212,17 @@
     else
       _quit "[Error] Unknow \$HOSTNAME: '${HOSTNAME}'"
     fi
-  #ENV_NAME="${ENV_NAME_BLACKJK}"
+#ENV_NAME="${ENV_NAME_BLACKJK}"
+    
+    if [ "${ENV_OS}" == "${ENV_OS_WIN}" ]; then
+      if [ -d "/cygdrive" ]; then
+        ENV_SHELL="${ENV_SHELL_CYGWIN}"
+      else
+        ENV_SHELL="${ENV_SHELL_GIT}"
+      fi
+    else
+      ENV_SHELL="${ENV_SHELL_BASH}"
+    fi
     
     ENV_USER="$(whoami)"
     
@@ -217,9 +232,9 @@
     ### [GIT]
     ### ----------------------------------------------------------------------------------------------------
     
-    ### GIT_USERNAME
-    ### GIT_EMAIL
-    ### GIT_COMPLETETION
+    ### GIT_USERNAME     : blackjk
+    ### GIT_EMAIL        : blackjk0@gmail.com | blackjkchen@hemidemi.com
+    ### GIT_COMPLETETION : 0 | 1
     
     if [ "${ENV_NAME}" == "${ENV_NAME_HEMIDEMI}" ]; then
       GIT_USERNAME="blackjk"
