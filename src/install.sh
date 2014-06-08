@@ -1,73 +1,6 @@
 #!/bin/bash
   
   ### ====================================================================================================
-  ### [Definition]
-  ### ====================================================================================================
-    
-    COLOR_CLEAR="\e[0m"
-    COLOR_ERROR="\e[0;31m"
-    COLOR_CANCEL="\e[1;30m"
-    COLOR_SUCCESS="\e[0;32m"
-    
-    COLOR_HIGHTLIGHT1="\e[1;1m"
-    COLOR_HIGHTLIGHT2="\e[1;33m"
-    
-    ### ----------------------------------------------------------------------------------------------------
-    
-    HOME_DIR="$(cd && pwd)"
-    
-    SCRIPT_FILE="${0##*/}"
-    SCRIPT_ROOT_DIR="$(cd ${BASH_SOURCE%/*/${SCRIPT_FILE}} && pwd)"
-    SCRIPT_HOME_DIR="${SCRIPT_ROOT_DIR}/home"
-    SCRIPT_TEMP_DIR="${SCRIPT_ROOT_DIR}/tmp"
-    
-    ### ----------------------------------------------------------------------------------------------------
-    
-    ENV_HEMIDEMI="hemidemi"
-    ENV_BLACKJK="blackjk"
-    ENV_DEFAULT="default"
-    
-    OS_LINUX="linux"
-    OS_WIN="win"
-    
-    if   [ "$(echo "${HOSTNAME}" | sed -r 's/^((ap[0-9]|dev)(\.(hemidemi|tintint)\.com)?)$/true/g')" == "true" ]; then
-      ENV_NAME="${ENV_HEMIDEMI}"
-      ENV_OS="${OS_LINUX}"
-    elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-HD-NB1)$/true/g')" == "true" ]; then
-      ENV_NAME="${ENV_HEMIDEMI}"
-      ENV_OS="${OS_WIN}"
-    elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-PC|BlackJK-NB(2)?)$/true/g')" == "true" ]; then
-      ENV_NAME="${ENV_BLACKJK}"
-      ENV_OS="${OS_WIN}"
-    else
-      ENV_NAME="${ENV_DEFAULT}"
-      ENV_OS="${OS_WIN}"
-    fi
-  #ENV_NAME="${ENV_BLACKJK}"
-    
-    
-    
-    ### ----------------------------------------------------------------------------------------------------
-    ### [GIT]
-    ### ----------------------------------------------------------------------------------------------------
-    
-    if [ "${ENV_NAME}" == "${ENV_HEMIDEMI}" ]; then
-      GIT_USERNAME="blackjk"
-      GIT_EMAIL="blackjkchen@hemidemi.com"
-    else
-      GIT_USERNAME="blackjk"
-      GIT_EMAIL="blackjk0@gmail.com"
-    fi
-    
-    if [ "${ENV_OS}" == "${OS_LINUX}" ]; then
-      GIT_COMPLETETION="1"
-    else
-      GIT_COMPLETETION=""
-    fi
-    
-    
-    
-  ### ====================================================================================================
   ### [Functions]
   ### ====================================================================================================
     
@@ -128,7 +61,8 @@
       echo -n > "${composed_dest_file_path}"
       for file_path in ${files[@]}
       do
-        echo -ne "      '${COLOR_HIGHTLIGHT1}${file_path}${COLOR_CLEAR}'"
+        vn="${file_path}                              "
+        echo -ne "      ${COLOR_HIGHTLIGHT1}${vn:0:64}${COLOR_CLEAR}"
         if [ ! -e "${file_path}" ]; then
           echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
         else
@@ -205,4 +139,101 @@
     
     
     
+    ### ----------------------------------------------------------------------------------------------------
+    
+    function _quit {
+      echo -e "${COLOR_ERROR}${1}${COLOR_CLEAR}\n"
+      exit 1
+    }
+    
+    
+    
   ### ====================================================================================================
+  ### [Definition]
+  ### ====================================================================================================
+    
+    
+    ### --------------------------------------------------
+    ### [COLOR]
+    ### --------------------------------------------------
+    
+    COLOR_CLEAR="\e[0m"
+    COLOR_ERROR="\e[0;31m"
+    COLOR_CANCEL="\e[1;30m"
+    COLOR_SUCCESS="\e[0;32m"
+    
+    COLOR_HIGHTLIGHT1="\e[1;1m"
+    COLOR_HIGHTLIGHT2="\e[1;33m"
+    
+    ### --------------------------------------------------
+    ### [ENV]
+    ### --------------------------------------------------
+    
+    ENV_NAME_HEMIDEMI="hemidemi"
+    ENV_NAME_BLACKJK="blackjk"
+    
+    ENV_OS_WIN="win"
+    ENV_OS_LINUX="linux"
+    
+    ENV_USER_ROOT="root"
+    ENV_USER_BLACKJK="blackjk"
+    
+    
+    
+    ### ----------------------------------------------------------------------------------------------------
+    
+    HOME_DIR="$(cd && pwd)"
+    
+    SCRIPT_FILE="${0##*/}"
+    SCRIPT_ROOT_DIR="$(cd ${BASH_SOURCE%/*/${SCRIPT_FILE}} && pwd)"
+    SCRIPT_HOME_DIR="${SCRIPT_ROOT_DIR}/home"
+    SCRIPT_TEMP_DIR="${SCRIPT_ROOT_DIR}/tmp"
+    
+    ### --------------------------------------------------
+    
+    ### ENV_NAME
+    ### ENV_OS
+    ### ENV_USER
+    
+    if   [ "$(echo "${HOSTNAME}" | sed -r 's/^((ap[0-9]|dev)(\.(hemidemi|tintint)\.com)?)$/true/g')" == "true" ]; then
+      ENV_NAME="${ENV_NAME_HEMIDEMI}"
+      ENV_OS="${ENV_OS_LINUX}"
+    elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-HD-NB1)$/true/g')" == "true" ]; then
+      ENV_NAME="${ENV_NAME_HEMIDEMI}"
+      ENV_OS="${ENV_OS_WIN}"
+    elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-PC|BlackJK-NB(2)?)$/true/g')" == "true" ]; then
+      ENV_NAME="${ENV_NAME_BLACKJK}"
+      ENV_OS="${ENV_OS_WIN}"
+    else
+      _quit "[Error] Unknow \$HOSTNAME: '${HOSTNAME}'"
+    fi
+  #ENV_NAME="${ENV_NAME_BLACKJK}"
+    
+    ENV_USER="$(whoami)"
+    
+    
+    
+    ### ----------------------------------------------------------------------------------------------------
+    ### [GIT]
+    ### ----------------------------------------------------------------------------------------------------
+    
+    ### GIT_USERNAME
+    ### GIT_EMAIL
+    ### GIT_COMPLETETION
+    
+    if [ "${ENV_NAME}" == "${ENV_NAME_HEMIDEMI}" ]; then
+      GIT_USERNAME="blackjk"
+      GIT_EMAIL="blackjkchen@hemidemi.com"
+    else
+      GIT_USERNAME="blackjk"
+      GIT_EMAIL="blackjk0@gmail.com"
+    fi
+    
+    if [ "${ENV_OS}" == "${ENV_OS_LINUX}" ]; then
+      GIT_COMPLETETION="1"
+    else
+      GIT_COMPLETETION=""
+    fi
+    
+    
+    
