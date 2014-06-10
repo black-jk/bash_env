@@ -20,8 +20,9 @@
       
       local source_file_path="${SCRIPT_HOME_DIR}/${filename}"
       local dest_file_path="${HOME_DIR}/${filename}"
-      echo -e "  "
-      echo -e "  [Install] ${COLOR_HIGHTLIGHT1}${dest_file_path}${COLOR_CLEAR}"
+      
+      printf "  \n"
+      printf "  [Install] ${COLOR_HIGHTLIGHT1}${dest_file_path}${COLOR_CLEAR}\n"
       
       ### ------------------------------
       
@@ -34,7 +35,7 @@
         
         local composed_dest_file_path="${tmp_source_file_path}"
         
-        echo -e "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#compose_source_files[@]}${COLOR_CLEAR}"
+        printf "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#compose_source_files[@]}${COLOR_CLEAR}\n"
         echo -n > "${composed_dest_file_path}"
         for file_path in ${compose_source_files[@]}
         do
@@ -42,7 +43,7 @@
           
           printf "      ${COLOR_HIGHTLIGHT1}%-64s${COLOR_CLEAR}" "${file_path}"
           if [ ! -e "${file_path}" ]; then
-            echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
+            printf "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}\n"
           else
             cat "${file_path}" >> "${composed_dest_file_path}"
             echo
@@ -64,14 +65,16 @@
       
       if [ -e "${dest_file_path}" ]; then
         if [ "$(diff "${tmp_source_file_path}" "${dest_file_path}")" ]; then
-          echo -n "  "
           _backup_file "${dest_file_path}"
         else
-          echo -e "    [${COLOR_SUCCESS}SKIP${COLOR_CLEAR}]" && return
+          printf "    [${COLOR_SUCCESS}SKIP${COLOR_CLEAR}]\n"
+          return
         fi
       fi
       
-      cp "${tmp_source_file_path}" "${dest_file_path}" && echo -e "    [${COLOR_SUCCESS}OK${COLOR_CLEAR}]" || echo -e "    [${COLOR_ERROR}FAIL${COLOR_CLEAR}]"
+      cp "${tmp_source_file_path}" "${dest_file_path}" \
+        && printf "    [${COLOR_SUCCESS}OK${COLOR_CLEAR}]\n" \
+        || printf "    [${COLOR_ERROR}FAIL${COLOR_CLEAR}]\n"
     }
     
     ### ----------------------------------------------------------------------------------------------------
@@ -80,13 +83,13 @@
       local file_path="${1}"
       local files=${@:2}
       
-      echo -e "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#files[@]}${COLOR_CLEAR}"
+      printf "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#files[@]}${COLOR_CLEAR}\n"
       echo -n > "${file_path}"
       for file_path in ${files[@]}
       do
         printf "      ${COLOR_HIGHTLIGHT1}%-64s${COLOR_CLEAR}" "${file_path}"
         if [ ! -e "${file_path}" ]; then
-          echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
+          printf "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}\n"
         else
           cat "${file_path}" >> "${file_path}"
           echo
@@ -108,14 +111,14 @@
         if [ -e "${source_file_path}" ]; then
           cp "${source_file_path}" "${tmp_file_path}"
         else
-          echo "    [ERROR] [_make_temp_file] Missing source file: '${source_file_path}'"
+          # [TODO] printf "    [ERROR] [_make_temp_file] Missing source file: '${source_file_path}'\n"
           echo -n > "${tmp_file_path}"
         fi
       else
         echo -n > "${tmp_file_path}"
       fi
       
-      echo "${tmp_file_path}"
+      printf "${tmp_file_path}"
     }
     
     ### ----------------------------------------------------------------------------------------------------
@@ -124,7 +127,7 @@
       local file_path="${1}"
       local variables="${2},"
       
-      echo "    [Variable]"
+      printf "    [Variable]\n"
       while [ "${variables%,}" ]; do
         local variable_name="${variables%%,*}"
         local variable_value="${!variable_name}"
@@ -140,7 +143,7 @@
     function _backup_file {
       local file_path="${1}"
       local backup_file_path="$(_get_backup_path "${file_path}")"
-      cp "${file_path}" "${backup_file_path}" && echo "  [Backup] ${backup_file_path}"
+      cp "${file_path}" "${backup_file_path}" && printf "    [Backup] ${backup_file_path}\n"
     }
     
     ### --------------------------------------------------
@@ -155,23 +158,15 @@
         backup_file_path="${file_path}.bak${i}"
       done
       
-      echo "${backup_file_path}"
+      printf "${backup_file_path}"
     }
     
     
-    
-    ### ----------------------------------------------------------------------------------------------------
-    
-    function _space {
-      local msg="${1}                                                                                                                                "
-      local num="${2}"
-      echo "${msg:0:${num}}"
-    }
     
     ### ----------------------------------------------------------------------------------------------------
     
     function _quit {
-      echo -e "${COLOR_ERROR}${1}${COLOR_CLEAR}\n"
+      printf "${COLOR_ERROR}${1}${COLOR_CLEAR}\n"
       exit 1
     }
     
@@ -228,13 +223,13 @@
     ### ENV_SHELL : ENV_SHELL_BASH | ENV_SHELL_CYGWIN | ENV_SHELL_GIT
     ### ENV_USER  : ENV_USER_ROOT | ENV_USER_BLACKJK
     
-    if   [ "$(echo "${HOSTNAME}" | sed -r 's/^((ap[0-9]|dev)(\.(hemidemi|tintint)\.com)?)$/true/g')" == "true" ]; then
+    if   [ "$(printf "${HOSTNAME}" | sed -r 's/^((ap[0-9]|dev)(\.(hemidemi|tintint)\.com)?)$/true/g')" == "true" ]; then
       ENV_NAME="${ENV_NAME_HEMIDEMI}"
       ENV_OS="${ENV_OS_LINUX}"
-    elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-HD-NB1)$/true/g')" == "true" ]; then
+    elif [ "$(printf "${HOSTNAME}" | sed -r 's/^(BlackJK-HD-NB1)$/true/g')" == "true" ]; then
       ENV_NAME="${ENV_NAME_HEMIDEMI}"
       ENV_OS="${ENV_OS_WIN}"
-    elif [ "$(echo "${HOSTNAME}" | sed -r 's/^(BlackJK-PC|BlackJK-NB(2)?)$/true/g')" == "true" ]; then
+    elif [ "$(printf "${HOSTNAME}" | sed -r 's/^(BlackJK-PC|BlackJK-NB(2)?)$/true/g')" == "true" ]; then
       ENV_NAME="${ENV_NAME_BLACKJK}"
       ENV_OS="${ENV_OS_WIN}"
     else
