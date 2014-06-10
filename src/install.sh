@@ -5,10 +5,10 @@
   ### ====================================================================================================
     
     function copy_file {
-      filename="${1}"
-      variables="${2}"
+      local filename="${1}"
+      local variables="${2}"
       
-      compose_source_files=()
+      local compose_source_files=()
       if [ "${#@}" -ge "3" ]; then
         for file in "${@:2}"
         do
@@ -18,28 +18,29 @@
         done
       fi
       
-      source_file_path="${SCRIPT_HOME_DIR}/${filename}"
-      dest_file_path="${HOME_DIR}/${filename}"
+      local source_file_path="${SCRIPT_HOME_DIR}/${filename}"
+      local dest_file_path="${HOME_DIR}/${filename}"
       echo -e "  "
       echo -e "  [Install] ${COLOR_HIGHTLIGHT1}${dest_file_path}${COLOR_CLEAR}"
       
       ### ------------------------------
       
+      ### [compose]
+      
       if [ "${#compose_source_files[@]}" -gt "0" ]; then
-        tmp_source_file_path="$(_make_temp_file "${filename}")"
+        local tmp_source_file_path="$(_make_temp_file "${filename}")"
         
         #_compose_file "${tmp_source_file_path}" ${compose_source_files[@]}
         
-        composed_dest_file_path="${tmp_source_file_path}"
+        local composed_dest_file_path="${tmp_source_file_path}"
         
         echo -e "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#compose_source_files[@]}${COLOR_CLEAR}"
         echo -n > "${composed_dest_file_path}"
         for file_path in ${compose_source_files[@]}
         do
-          
           file_path="${source_file_path}.partial/${file_path}"
           
-          echo -ne "      ${COLOR_HIGHTLIGHT1}$(_space "${file_path}" 64)${COLOR_CLEAR}"
+          printf "      ${COLOR_HIGHTLIGHT1}%-64s${COLOR_CLEAR}" "${file_path}"
           if [ ! -e "${file_path}" ]; then
             echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
           else
@@ -48,10 +49,12 @@
           fi
         done
       else
-        tmp_source_file_path="$(_make_temp_file "${filename}" "${source_file_path}")"
+        local tmp_source_file_path="$(_make_temp_file "${filename}" "${source_file_path}")"
       fi
       
       ### ------------------------------
+      
+      ### [variables]
       
       if [ "${variables}" ]; then
         _handle_variables "${tmp_source_file_path}" "${variables}"
@@ -74,19 +77,18 @@
     ### ----------------------------------------------------------------------------------------------------
     
     function _compose_file {
-      composed_dest_file_path="${1}"
-      files=${@:2}
-echo "files: '${files}'"
+      local file_path="${1}"
+      local files=${@:2}
       
       echo -e "    [Compose] ${COLOR_HIGHTLIGHT1}files: ${#files[@]}${COLOR_CLEAR}"
-      echo -n > "${composed_dest_file_path}"
+      echo -n > "${file_path}"
       for file_path in ${files[@]}
       do
-        echo -ne "      ${COLOR_HIGHTLIGHT1}$(_space "${file_path}" 64)${COLOR_CLEAR}"
+        printf "      ${COLOR_HIGHTLIGHT1}%-64s${COLOR_CLEAR}" "${file_path}"
         if [ ! -e "${file_path}" ]; then
           echo -e "   ${COLOR_ERROR}[ERROR] Missing file!${COLOR_CLEAR}"
         else
-          cat "${file_path}" >> "${composed_dest_file_path}"
+          cat "${file_path}" >> "${file_path}"
           echo
         fi
       done
@@ -95,11 +97,11 @@ echo "files: '${files}'"
     ### ----------------------------------------------------------------------------------------------------
     
     function _make_temp_file {
-      file_path="${1}"
-      source_file_path="${2}"
+      local file_path="${1}"
+      local source_file_path="${2}"
       
-      tmp_file_path="${SCRIPT_TEMP_DIR}/${file_path}"
-      tmp_file_dir="${tmp_file_path%/*}"
+      local tmp_file_path="${SCRIPT_TEMP_DIR}/${file_path}"
+      local tmp_file_dir="${tmp_file_path%/*}"
       mkdir -p "${tmp_file_dir}"
       
       if [ "${source_file_path}" ]; then
@@ -119,16 +121,16 @@ echo "files: '${files}'"
     ### ----------------------------------------------------------------------------------------------------
     
     function _handle_variables {
-      file_path="${1}"
-      variables="${2},"
+      local file_path="${1}"
+      local variables="${2},"
       
       echo "    [Variable]"
       while [ "${variables%,}" ]; do
-        variable_name="${variables%%,*}"
-        variable_value="${!variable_name}"
+        local variable_name="${variables%%,*}"
+        local variable_value="${!variable_name}"
         variables="${variables#*,}"
         
-        echo -e "      ${COLOR_HIGHTLIGHT1}$(_space "${variable_name}" 16): ${variable_value}${COLOR_CLEAR}"
+        printf "      ${COLOR_HIGHTLIGHT1}%-16s: %s${COLOR_CLEAR}\n" "${variable_name}" "${variable_value}"
         sed -r -i "s/\\$\\{${variable_name}\\}/${variable_value//\//\\/}/g" "${file_path}"
       done
     }
@@ -136,18 +138,18 @@ echo "files: '${files}'"
     ### ----------------------------------------------------------------------------------------------------
     
     function _backup_file {
-      file_path="${1}"
-      backup_file_path="$(_get_backup_path "${file_path}")"
+      local file_path="${1}"
+      local backup_file_path="$(_get_backup_path "${file_path}")"
       cp "${file_path}" "${backup_file_path}" && echo "  [Backup] ${backup_file_path}"
     }
     
     ### --------------------------------------------------
     
     function _get_backup_path {
-      file_path="${1}"
-      backup_file_path="${file_path}.bak"
+      local file_path="${1}"
+      local backup_file_path="${file_path}.bak"
       
-      i=0
+      local i=0
       while [ -e "${backup_file_path}" ]; do
         i=$((${i} + 1))
         backup_file_path="${file_path}.bak${i}"
@@ -161,9 +163,9 @@ echo "files: '${files}'"
     ### ----------------------------------------------------------------------------------------------------
     
     function _space {
-      _msg="${1}                                                                                                                                "
-      _num="${2}"
-      echo "${_msg:0:${_num}}"
+      local msg="${1}                                                                                                                                "
+      local num="${2}"
+      echo "${msg:0:${num}}"
     }
     
     ### ----------------------------------------------------------------------------------------------------
@@ -178,7 +180,6 @@ echo "files: '${files}'"
   ### ====================================================================================================
   ### [Definition]
   ### ====================================================================================================
-    
     
     ### --------------------------------------------------
     ### [COLOR]
